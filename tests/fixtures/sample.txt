@@ -1,0 +1,2 @@
+A complete document fixture used for validation.
+This text contains source-traceable content.
