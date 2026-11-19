@@ -35,16 +35,44 @@ through the API.
 
 ## 3. Architecture overview
 
-```text
-FastAPI routes
-    → document registration and local file storage
-    → document analysis
-    → registered processing plugins
-    → normalized document and optional LLM enrichment
-    → hierarchical chunking
-    → embedding provider
-    → vector-store adapter
-    → SQLite metadata and chunk records
+```mermaid
+flowchart TD
+    Client --> API["FastAPI API<br/>Upload · validation · synchronous ingest"]
+    API --> Files["Local file storage"]
+    API --> Orchestrator["Ingestion orchestrator<br/>Synchronous pipeline coordination"]
+    API --> DB[("SQLite<br/>Documents · status · chunks")]
+
+    Orchestrator --> Analyzer["Document analyzer<br/>Format and scanned-document analysis"]
+    Analyzer --> Registry["Processor registry<br/>Selects supported processors"]
+
+    subgraph Processing["Local processing adapters"]
+        direction LR
+        Text["Text extraction<br/>PDF · DOCX · PPTX · TXT · Markdown"]
+        Tables["Table extraction<br/>XLSX"]
+        Images["Image extraction<br/>PDFs and image uploads"]
+        OCR["Optional OCR<br/>Tesseract"]
+        Layout["Layout extraction<br/>Basic placeholder"]
+    end
+
+    Registry --> Text
+    Registry --> Tables
+    Registry --> Images
+    Registry --> OCR
+    Registry --> Layout
+    Text --> Normalize["Document normalizer<br/>Sections · tables · images · provenance"]
+    Tables --> Normalize
+    Images --> Normalize
+    OCR --> Normalize
+    Layout --> Normalize
+
+    Normalize --> Enrichment["Optional structured enrichment<br/>Ollama · disabled by default"]
+    Enrichment --> Artifacts["Processed artifacts<br/>normalized.json"]
+    Images --> Artifacts
+    Enrichment --> Chunking["Hierarchical chunking<br/>Parent/child · configurable size and overlap"]
+    Chunking --> Embeddings["Embedding provider<br/>Deterministic hash by default · sentence-transformers"]
+    Embeddings --> Vectors[("Vector store<br/>In-memory by default · Qdrant selectable")]
+    Chunking --> DB
+    Orchestrator -. status and chunk records .-> DB
 ```
 
 Core contracts and orchestration are separated from provider adapters. Local
@@ -52,6 +80,9 @@ filesystem, SQLite, Ollama, sentence-transformers, in-memory vectors, and Qdrant
 implementations are selected or wired through application dependencies. This is a
 modular monolith; background jobs and independently deployed processing workers are
 not yet implemented.
+
+The diagram shows the implemented local pipeline and its current defaults. Cloud
+document-processing, vision, and hosted embedding providers are not implemented.
 
 ## 4. Technology stack
 
