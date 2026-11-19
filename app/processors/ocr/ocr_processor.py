@@ -2,7 +2,7 @@ import asyncio
 import shutil
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 from app.document.models.contracts import DocumentAnalysisResult
 from app.processors.base.contracts import ProcessingRequest, ProcessingResult
@@ -41,10 +41,10 @@ class TesseractOCRProcessor:
         import subprocess
 
         if path.suffix.lower() == ".pdf":
-            with fitz.open(path) as pdf:
+            with pymupdf.open(path) as pdf:
                 pages = []
                 for number, page in enumerate(pdf, start=1):
-                    pixmap = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+                    pixmap = page.get_pixmap(matrix=pymupdf.Matrix(2, 2), alpha=False)
                     image_path = path.parent / f".{path.stem}-ocr-{number}.png"
                     pixmap.save(image_path)
                     completed = subprocess.run(

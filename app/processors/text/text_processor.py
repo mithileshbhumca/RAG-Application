@@ -1,7 +1,7 @@
 import asyncio
 from pathlib import Path
 
-import fitz
+import pymupdf
 from docx import Document as DocxDocument
 from pptx import Presentation
 
@@ -41,7 +41,7 @@ class TextExtractionProcessor:
     @staticmethod
     def _pdf_text(path: Path) -> list[dict]:
         result = []
-        with fitz.open(path) as pdf:
+        with pymupdf.open(path) as pdf:
             for page_number, page in enumerate(pdf, start=1):
                 for index, block in enumerate(page.get_text("blocks")):
                     text = block[4].strip()

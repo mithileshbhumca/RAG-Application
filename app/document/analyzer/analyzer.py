@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import fitz
+import pymupdf
 from PIL import Image
 
 from app.document.models.contracts import DocumentAnalysisResult, DocumentDimensions
@@ -33,7 +33,7 @@ class DocumentAnalyzer:
         layout_complexity = "low"
 
         if document_type == "pdf":
-            with fitz.open(path) as pdf:
+            with pymupdf.open(path) as pdf:
                 page_count = pdf.page_count
                 native_chars = 0
                 image_count = 0

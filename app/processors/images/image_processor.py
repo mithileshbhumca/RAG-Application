@@ -1,7 +1,7 @@
 import asyncio
 from pathlib import Path
 
-import fitz
+import pymupdf
 from PIL import Image
 
 from app.document.models.contracts import DocumentAnalysisResult
@@ -39,13 +39,13 @@ class ImageExtractionProcessor:
         result = []
         output_dir = self.artifact_root / document_id / "images"
         output_dir.mkdir(parents=True, exist_ok=True)
-        with fitz.open(path) as pdf:
+        with pymupdf.open(path) as pdf:
             for page_number, page in enumerate(pdf, start=1):
                 for index, image_ref in enumerate(page.get_images(full=True), start=1):
                     xref = image_ref[0]
-                    pixmap = fitz.Pixmap(pdf, xref)
+                    pixmap = pymupdf.Pixmap(pdf, xref)
                     if pixmap.n - pixmap.alpha > 4:
-                        pixmap = fitz.Pixmap(fitz.csRGB, pixmap)
+                        pixmap = pymupdf.Pixmap(pymupdf.csRGB, pixmap)
                     image_path = output_dir / f"p{page_number}-i{index}.png"
                     pixmap.save(image_path)
                     result.append({
