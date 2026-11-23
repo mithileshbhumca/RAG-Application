@@ -11,6 +11,13 @@ domain exceptions to HTTP responses.
 - `POST /api/v1/documents/upload`: reads the upload, checks emptiness, configured
   size and MIME allowlist, hashes the bytes with SHA-256, detects duplicate
   checksums, and stores a new document and initial status.
+- Important considerations
+- Same file content produces the same SHA-256 checksum, even if the filename changes.
+- Different file content normally produces a different checksum.
+- If the PDF is modified, its checksum changes.
+- SHA-256 is a fingerprint, not encryption.
+- For large files, consider streaming and calculating the checksum in chunks instead of loading the entire file into memory.
+  
 - `POST /api/v1/documents/{document_id}/ingest`: constructs the orchestrator and
   runs ingestion in the request.
 - `GET` routes for status, metadata, and chunks, plus document deletion.
