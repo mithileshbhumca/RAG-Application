@@ -121,6 +121,12 @@ docker-compose.yml
 pyproject.toml
 ```
 
+Module implementation guides are available in [docs/modules/](docs/modules/README.md).
+They describe each application module's current behavior, libraries, alternatives,
+and production-oriented enhancements. Treat the current implementation status below
+as authoritative; recommendations in those guides are not claims of implemented
+features.
+
 ## 6. Prerequisites
 
 - Python 3.12 or newer within the supported range in `pyproject.toml`
